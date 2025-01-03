@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Submit Your Content</h1>
+    <p class="text-center">Upload up to 4 files (images/videos) and provide a description.</p>
+
+    <!-- Form -->
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea name="description" id="description" class="form-control" rows="2" placeholder="Enter a description..." required></textarea>
+        </div>
+        <div class="form-group mt-3">
+            <label for="files">Files:</label>
+            <input type="file" name="files" id="files" class="form-control" multiple accept="image/*,video/*" required>
+        </div>
+        <div class="form-group text-center mt-4">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+
+    <!-- Success/Error Message -->
+    <div id="messageBox" class="mt-4 text-center" style="display: none;"></div>
+</div>
+
+<script>
+    const form = document.getElementById("uploadForm");
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch("/submit-content", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+            const messageBox = document.getElementById("messageBox");
+            messageBox.style.display = "block";
+            if (result.status === "success") {
+                messageBox.className = "alert alert-success";
+                messageBox.textContent = result.message;
+                form.reset();
+            } else {
+                messageBox.className = "alert alert-danger";
+                messageBox.textContent = result.message;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            const messageBox = document.getElementById("messageBox");
+            messageBox.style.display = "block";
+            messageBox.className = "alert alert-danger";
+            messageBox.textContent = "An unexpected error occurred. Please try again later.";
+        }
+    });
+</script>
+{% endblock %}
